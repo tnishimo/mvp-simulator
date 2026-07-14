@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Odango Web Station – マイページ / 運休・払戻</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,0,0" />
+<style>
+:root{
+  --c-navy:#1B3A57; --c-navy-light:#2C5274; --c-accent:#3A7892; --c-accent-light:#EBF5FB;
+  --c-success:#27AE60; --c-success-bg:#D5F5E3; --c-warning:#F39C12; --c-warning-bg:#FEF9E7;
+  --c-danger:#C0392B; --c-danger-bg:#FDEDEC; --c-bg:#EBEDF0; --c-surface:#FFFFFF;
+  --c-surface-alt:#F0F4F6; --c-surface-sub:#FAFAFA; --c-text:#243040; --c-text-sub:#4A5C6A;
+  --c-text-muted:#7A8E9A; --c-border:#D0D7DE; --c-border-light:#EBEDF0;
+  --radius-sm:4px; --radius-md:8px; --radius-lg:14px; --radius-xl:20px;
+  --shadow-sm:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:0 4px 16px rgba(0,0,0,.09); --shadow-lg:0 16px 48px rgba(0,0,0,.16);
+  --f-sans:'Noto Sans JP',system-ui,sans-serif; --f-mono:'Noto Sans JP',system-ui,sans-serif;
+  --transition:all .22s cubic-bezier(.25,.8,.25,1);
+  --c-warm:#F7F3EE; --c-gold:#C8963C; --c-rust:#8B5E3C;
+  --usm-primary:#3A7892; --usm-dark:#2B5E72; --usm-mid:#4A96AB;
+  --usm-light:#EBF5FB; --usm-lighter:#F2F9FC; --usm-border:#C4DCE6; --usm-text:#2B5E72;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--f-sans);background:var(--c-warm);color:var(--c-text);font-size:15px;line-height:1.6;min-height:100vh;-webkit-font-smoothing:antialiased;}
+h1,h2,h3,h4,p{margin:0;} ul{list-style:none;}
+button{cursor:pointer;font-family:var(--f-sans);}
+input,select,textarea{font-family:var(--f-sans);}
+
+/* Header */
+.site-header{position:sticky;top:0;z-index:200;background:rgba(27,58,87,.97);backdrop-filter:blur(12px);height:52px;display:flex;align-items:center;padding:0 32px;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.08);}
+.logo{display:flex;align-items:baseline;gap:10px;color:#fff;text-decoration:none;cursor:pointer;}
+.logo-main{font-size:.95rem;font-weight:400;letter-spacing:.02em;color:#fff;}
+.logo-en{font-size:.65rem;font-weight:300;letter-spacing:.12em;color:rgba(255,255,255,.45);text-transform:uppercase;}
+.logo-dot{width:6px;height:6px;border-radius:50%;background:var(--c-gold);margin-bottom:2px;}
+.header-right{display:flex;align-items:center;gap:18px;}
+.header-nav{display:flex;align-items:center;gap:6px;color:rgba(255,255,255,.85);font-size:.8rem;cursor:pointer;}
+.header-nav .material-symbols-outlined{font-size:18px;}
+.lbl-switch{display:flex;align-items:center;gap:7px;font-size:.72rem;color:rgba(255,255,255,.55);user-select:none;cursor:pointer;}
+.lbl-switch input{display:none;}
+.lbl-switch .track{width:34px;height:18px;border-radius:10px;background:rgba(255,255,255,.18);position:relative;transition:var(--transition);}
+.lbl-switch .track::after{content:'';position:absolute;left:2px;top:2px;width:14px;height:14px;border-radius:50%;background:#fff;transition:var(--transition);}
+.lbl-switch input:checked + .track{background:var(--c-gold);}
+.lbl-switch input:checked + .track::after{transform:translateX(16px);}
+.avatar{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:.75rem;color:#fff;}
+
+/* Container / screens */
+.container{max-width:920px;margin:0 auto;padding:40px 32px 80px;}
+.screen{display:none;}
+.screen.active{display:block;animation:pageIn .35s cubic-bezier(.22,1,.36,1);}
+@keyframes pageIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+.scr-eyebrow{font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:var(--c-accent);font-weight:500;margin-bottom:8px;}
+.scr-title{font-size:1.5rem;font-weight:500;color:var(--c-navy);letter-spacing:.01em;margin-bottom:6px;}
+.scr-sub{font-size:.85rem;color:var(--c-text-sub);margin-bottom:28px;}
+
+/* US chip (workshop mapping) */
+.us-chip{display:none;font-size:.6rem;font-family:var(--f-mono);letter-spacing:.04em;color:var(--c-accent);background:var(--c-accent-light);border:1px solid #cfe4ee;border-radius:20px;padding:1px 8px;vertical-align:middle;margin-left:8px;}
+body.show-us .us-chip{display:inline-block;}
+body.show-us [data-us]{outline:1.5px dashed rgba(58,120,146,.35);outline-offset:4px;border-radius:var(--radius-md);}
+
+/* Cards / blocks */
+.block{background:var(--c-surface);border:1.5px solid var(--c-border-light);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);padding:22px 24px;margin-bottom:16px;}
+.block-hd{display:flex;align-items:center;gap:10px;font-size:.95rem;font-weight:500;color:var(--c-navy);margin-bottom:14px;}
+.block-hd .material-symbols-outlined{font-size:20px;color:var(--c-accent);}
+
+/* ── My Page ── */
+.mp-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:22px;}
+.mp-greet{font-size:1.5rem;font-weight:500;color:var(--c-navy);}
+.mp-greet small{font-size:.8rem;font-weight:400;color:var(--c-text-muted);margin-left:8px;}
+.mp-tabs{display:flex;gap:22px;border-bottom:1.5px solid var(--c-border-light);margin-bottom:24px;}
+.mp-tab{padding:10px 2px;font-size:.85rem;color:var(--c-text-muted);border-bottom:2px solid transparent;margin-bottom:-1.5px;}
+.mp-tab.active{color:var(--c-navy);font-weight:500;border-bottom-color:var(--c-navy);}
+
+.mp-warning{display:flex;gap:14px;align-items:flex-start;background:var(--c-warning-bg);border:1.5px solid #f3ddb0;border-radius:var(--radius-lg);padding:16px 20px;margin-bottom:24px;}
+.mp-warning .material-symbols-outlined{font-size:24px;color:var(--c-warning);flex-shrink:0;margin-top:1px;}
+.mp-warning-title{font-weight:500;color:#B9770E;font-size:.9rem;margin-bottom:2px;}
+.mp-warning-body{font-size:.8rem;color:var(--c-text-sub);}
+.mp-warning-body b{color:var(--c-danger);}
+
+.section-label{font-size:.75rem;letter-spacing:.08em;color:var(--c-text-muted);font-weight:500;margin:0 0 12px 2px;text-transform:uppercase;}
+
+/* Ticket card */
+.ticket-card{background:var(--c-surface);border:1.5px solid var(--c-border-light);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);overflow:hidden;margin-bottom:16px;transition:var(--transition);}
+.ticket-card.affected{border-color:#f1c0ba;box-shadow:0 4px 18px rgba(192,57,43,.08);}
+.tc-alert{display:flex;align-items:center;gap:8px;background:var(--c-danger-bg);color:var(--c-danger);font-size:.8rem;font-weight:500;padding:10px 20px;border-bottom:1px solid #f1c0ba;}
+.tc-alert .material-symbols-outlined{font-size:18px;}
+.tc-body{display:grid;grid-template-columns:auto 1fr auto;gap:22px;align-items:center;padding:20px 22px;}
+.tc-badge{width:56px;height:56px;border-radius:12px;background:var(--c-navy);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;flex-shrink:0;}
+.tc-badge .material-symbols-outlined{font-size:22px;}
+.tc-badge span.n{font-size:.6rem;opacity:.75;font-family:var(--f-mono);}
+.tc-route{display:flex;align-items:center;gap:14px;}
+.tc-stn{text-align:center;}
+.tc-hhmm{font-size:1.4rem;font-weight:300;color:var(--c-navy);font-family:var(--f-mono);line-height:1;}
+.tc-name{font-size:.7rem;color:var(--c-text-muted);margin-top:3px;}
+.tc-arrow{color:var(--c-border);font-size:20px;}
+.tc-meta{font-size:.75rem;color:var(--c-text-sub);margin-top:7px;}
+.status-pill{display:inline-flex;align-items:center;gap:5px;font-size:.72rem;font-weight:500;padding:4px 12px;border-radius:20px;white-space:nowrap;}
+.status-pill.cancel{background:var(--c-danger-bg);color:var(--c-danger);}
+.status-pill.delay{background:var(--c-warning-bg);color:#B9770E;}
+.status-pill.free{background:var(--c-success-bg);color:#1E8449;}
+.status-pill.ok{background:var(--c-accent-light);color:var(--c-accent);}
+.status-pill.done{background:var(--c-surface-alt);color:var(--c-text-muted);}
+.tc-foot{display:flex;justify-content:flex-end;gap:10px;padding:0 22px 18px;}
+
+/* Disruption banner (in flow) */
+.alert{display:flex;gap:14px;align-items:flex-start;background:var(--c-danger-bg);border:1.5px solid #f1c0ba;border-radius:var(--radius-lg);padding:18px 22px;margin-bottom:22px;}
+.alert .material-symbols-outlined{font-size:26px;color:var(--c-danger);flex-shrink:0;}
+.alert-title{font-weight:500;color:var(--c-danger);font-size:.95rem;margin-bottom:2px;}
+.alert-body{font-size:.82rem;color:var(--c-text-sub);}
+
+/* Booking card (in flow) */
+.booking{display:grid;grid-template-columns:auto 1fr auto;gap:22px;align-items:center;border:1.5px solid var(--c-border-light);border-radius:var(--radius-lg);padding:20px 22px;background:var(--c-surface-sub);}
+.bk-badge{width:56px;height:56px;border-radius:12px;background:var(--c-navy);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;flex-shrink:0;}
+.bk-badge .material-symbols-outlined{font-size:22px;}
+.bk-badge span.n{font-size:.6rem;opacity:.7;font-family:var(--f-mono);}
+.bk-route{display:flex;align-items:center;gap:14px;}
+.bk-stn{text-align:center;}
+.bk-hhmm{font-size:1.5rem;font-weight:300;color:var(--c-navy);font-family:var(--f-mono);line-height:1;}
+.bk-name{font-size:.7rem;color:var(--c-text-muted);margin-top:3px;}
+.bk-arrow{color:var(--c-border);font-size:20px;}
+.bk-meta{font-size:.75rem;color:var(--c-text-sub);margin-top:6px;}
+
+/* Info rows */
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px dashed var(--c-border-light);font-size:.85rem;}
+.info-row:last-child{border-bottom:none;}
+.info-row .k{color:var(--c-text-sub);}
+.info-row .v{color:var(--c-text);font-weight:500;}
+.muted{color:var(--c-text-muted);font-size:.78rem;}
+
+/* AI card */
+.ai-card{background:linear-gradient(135deg,#eef4f7,#f7f3ee);border:1.5px solid #dbe6ec;border-radius:var(--radius-lg);padding:18px 20px;margin-top:16px;}
+.ai-tag{display:inline-flex;align-items:center;gap:5px;font-size:.68rem;font-weight:500;color:var(--c-accent);letter-spacing:.05em;margin-bottom:8px;}
+.ai-tag .material-symbols-outlined{font-size:15px;}
+
+/* Choice cards */
+.choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+.choice{border:2px solid var(--c-border-light);border-radius:var(--radius-lg);padding:26px 22px;background:var(--c-surface);cursor:pointer;transition:var(--transition);text-align:center;}
+.choice:hover{border-color:var(--c-accent);box-shadow:var(--shadow-md);transform:translateY(-2px);}
+.choice .ico{width:56px;height:56px;border-radius:14px;background:var(--c-accent-light);color:var(--c-accent);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;}
+.choice .ico .material-symbols-outlined{font-size:28px;}
+.choice h3{font-size:1.05rem;color:var(--c-navy);font-weight:500;margin-bottom:6px;}
+.choice p{font-size:.78rem;color:var(--c-text-sub);}
+
+/* Accordion */
+.acc{border:1.5px solid var(--c-border-light);border-radius:var(--radius-md);overflow:hidden;}
+.acc-hd{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;cursor:pointer;font-size:.85rem;font-weight:500;color:var(--c-navy);background:var(--c-surface-sub);}
+.acc-hd .material-symbols-outlined{transition:var(--transition);}
+.acc.open .acc-hd .material-symbols-outlined{transform:rotate(180deg);}
+.acc-body{display:none;padding:16px 18px;font-size:.82rem;color:var(--c-text-sub);}
+.acc.open .acc-body{display:block;}
+
+/* Tabs */
+.tabs{display:flex;gap:6px;margin-bottom:18px;border-bottom:1.5px solid var(--c-border-light);}
+.tab{padding:10px 18px;font-size:.85rem;color:var(--c-text-sub);border-bottom:2px solid transparent;margin-bottom:-1.5px;transition:var(--transition);}
+.tab.active{color:var(--c-navy);border-bottom-color:var(--c-navy);font-weight:500;}
+.tabpane{display:none;} .tabpane.active{display:block;}
+
+/* Train rows */
+.train-row{display:grid;grid-template-columns:auto 1fr auto;gap:22px;align-items:center;padding:20px 22px;margin-bottom:10px;background:var(--c-surface);border:1.5px solid var(--c-border-light);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);cursor:pointer;transition:var(--transition);}
+.train-row:hover{border-color:var(--c-accent);box-shadow:var(--shadow-md);transform:translateY(-2px);}
+.train-row.selected{background:var(--c-navy);border-color:var(--c-navy);}
+.train-row.selected .t-hhmm,.train-row.selected .t-stn,.train-row.selected .t-mid-dur,.train-row.selected .t-fare,.train-row.selected .t-note{color:#fff !important;}
+.train-row.selected .t-mid-line{background:rgba(255,255,255,.4);}
+.train-row.selected .tr-badge{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.32);}
+.train-row.selected .tr-badge b,.train-row.selected .tr-badge span{color:#fff !important;}
+.train-row.selected .status-pill.free{background:#fff;color:#1E8449;}
+.tr-badge{width:50px;height:50px;border-radius:12px;background:var(--c-surface);border:1.5px solid var(--c-border);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:.62rem;color:var(--c-text-sub);flex-shrink:0;}
+.tr-badge b{font-size:.7rem;font-weight:500;color:var(--c-navy);}
+.t-times{display:flex;align-items:center;}
+.t-time{text-align:center;} .t-hhmm{font-size:1.5rem;font-weight:300;color:var(--c-navy);font-family:var(--f-mono);line-height:1;}
+.t-stn{font-size:.68rem;color:var(--c-text-muted);margin-top:3px;}
+.t-mid{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:0 14px;min-width:80px;}
+.t-mid-dur{font-size:.68rem;color:var(--c-text-sub);}
+.t-mid-line{width:100%;height:1px;background:linear-gradient(to right,var(--c-border),var(--c-accent),var(--c-border));}
+.t-right{text-align:right;}
+.t-fare{font-size:1.05rem;font-weight:500;color:var(--c-navy);}
+.t-note{font-size:.68rem;color:var(--c-text-muted);}
+
+/* Refund summary table */
+.sum-table{width:100%;}
+.sum-row{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px dashed var(--c-border-light);font-size:.88rem;}
+.sum-row.total{border-bottom:none;border-top:2px solid var(--c-border);margin-top:6px;padding-top:16px;font-size:1.05rem;font-weight:500;color:var(--c-navy);}
+.sum-row .neg{color:var(--c-danger);}
+.sum-row .pos{color:var(--c-success);}
+.sum-k{color:var(--c-text-sub);display:flex;align-items:center;gap:8px;}
+
+/* Refund method */
+.method{display:flex;align-items:center;gap:14px;border:1.5px solid var(--c-border-light);border-radius:var(--radius-md);padding:16px 18px;margin-top:6px;background:var(--c-surface-sub);}
+.method .card-mini{width:44px;height:30px;border-radius:5px;background:linear-gradient(135deg,var(--c-navy),var(--c-accent));flex-shrink:0;}
+.method .m-name{font-size:.85rem;font-weight:500;}
+.method .m-num{font-size:.75rem;color:var(--c-text-muted);font-family:var(--f-mono);}
+
+/* Toggle switch (in-page) */
+.switch{display:flex;align-items:center;gap:10px;font-size:.82rem;color:var(--c-text-sub);cursor:pointer;}
+.switch input{display:none;}
+.switch .tk{width:38px;height:20px;border-radius:12px;background:var(--c-border);position:relative;transition:var(--transition);}
+.switch .tk::after{content:'';position:absolute;left:2px;top:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:var(--shadow-sm);transition:var(--transition);}
+.switch input:checked + .tk{background:var(--c-accent);}
+.switch input:checked + .tk::after{transform:translateX(18px);}
+
+/* Result */
+.result-wrap{text-align:center;padding:20px 0;}
+.result-check{width:72px;height:72px;border-radius:50%;background:var(--c-success-bg);color:var(--c-success);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;}
+.result-check .material-symbols-outlined{font-size:40px;}
+.receipt-no{font-family:var(--f-mono);font-size:1.6rem;color:var(--c-navy);letter-spacing:.05em;font-weight:500;margin:6px 0;}
+.result-mail{display:inline-flex;align-items:center;gap:8px;font-size:.82rem;color:var(--c-text-sub);background:var(--c-surface-sub);border:1px solid var(--c-border-light);border-radius:20px;padding:8px 16px;margin-top:16px;}
+.result-mail .material-symbols-outlined{font-size:17px;color:var(--c-accent);}
+
+/* Buttons / actions */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:12px 24px;border-radius:var(--radius-md);font-size:.9rem;font-weight:400;border:none;transition:var(--transition);letter-spacing:.02em;line-height:1;}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+.btn .material-symbols-outlined{font-size:18px;}
+.btn-sm{padding:9px 16px;font-size:.82rem;}
+.btn-primary{background:var(--c-navy);color:#fff;}
+.btn-primary:hover:not(:disabled){background:var(--c-navy-light);box-shadow:0 4px 14px rgba(27,58,87,.3);transform:translateY(-1px);}
+.btn-danger{background:var(--c-danger);color:#fff;}
+.btn-danger:hover:not(:disabled){background:#a93226;box-shadow:0 4px 14px rgba(192,57,43,.3);transform:translateY(-1px);}
+.btn-ghost{background:transparent;color:var(--c-text-sub);}
+.btn-ghost:hover{color:var(--c-navy);background:rgba(0,0,0,.04);}
+.btn-outline{background:transparent;color:var(--c-navy);border:1.5px solid var(--c-border);}
+.btn-outline:hover{border-color:var(--c-navy);background:rgba(0,0,0,.03);}
+.btn-accent{background:var(--c-accent);color:#fff;}
+.btn-accent:hover:not(:disabled){background:#2d6478;transform:translateY(-1px);}
+.actions{display:flex;justify-content:space-between;align-items:center;margin-top:24px;}
+
+.hint{font-size:.72rem;color:var(--c-text-muted);margin-top:10px;display:flex;align-items:center;gap:6px;}
+.hint .material-symbols-outlined{font-size:15px;}
+
+@media(max-width:720px){
+  .choice-grid{grid-template-columns:1fr;}
+  .tc-body,.booking{grid-template-columns:auto 1fr;}
+  .tc-status-col,.bk-status-col{grid-column:1/-1;}
+  .container{padding:28px 18px 60px;}
+}
+
+/* ═══════════ USM Panel (予約画面の書き方を踏襲) ═══════════ */
+.usm-fab{position:fixed;bottom:28px;right:24px;z-index:600;background:var(--usm-primary);color:#fff;border:none;border-radius:28px;padding:11px 20px 11px 14px;display:inline-flex;align-items:center;gap:7px;font-size:.82rem;font-weight:500;font-family:var(--f-sans);box-shadow:0 4px 20px rgba(58,120,146,.45);cursor:pointer;transition:background .2s,box-shadow .2s;letter-spacing:.02em;}
+.usm-fab:hover{background:var(--usm-dark);box-shadow:0 8px 28px rgba(58,120,146,.5);}
+.usm-fab .material-symbols-outlined{font-size:18px;}
+body.usm-open .usm-fab{display:none;}
+
+/* 予約画面と同じ左ドック：本編を右へ寄せ、パネルは左に固定（重なりなし） */
+.usm-panel{position:fixed;left:0;top:0;bottom:0;width:46vw;min-width:320px;z-index:300;transform:translateX(-100%);transition:transform .4s cubic-bezier(.22,1,.36,1);display:flex;flex-direction:column;overflow:hidden;background:#E7ECF1;border-right:1px solid rgba(0,0,0,.14);}
+.usm-panel.open{transform:translateX(0);}
+body.usm-open .site-header,body.usm-open .container{margin-left:46vw;transition:margin-left .4s cubic-bezier(.22,1,.36,1);}
+body.usm-max .usm-panel{width:100%;min-width:0;z-index:800;}
+body.usm-max.usm-open .site-header,body.usm-max.usm-open .container{margin-left:0;}
+
+.usm-header{background:var(--usm-primary);color:#fff;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:12px;}
+.usm-header-left{display:flex;align-items:center;gap:10px;min-width:0;}
+.usm-hicon{width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.usm-hicon .material-symbols-outlined{font-size:18px;}
+.usm-htitle{font-size:.88rem;font-weight:500;line-height:1.2;}
+.usm-hsub{font-size:.65rem;opacity:.5;letter-spacing:.05em;margin-top:1px;}
+.usm-header-right{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.usm-icon-btn,.usm-close-btn{background:transparent;border:none;color:rgba(255,255,255,.6);cursor:pointer;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:var(--transition);}
+.usm-icon-btn:hover,.usm-close-btn:hover{background:rgba(255,255,255,.12);color:#fff;}
+.usm-icon-btn .material-symbols-outlined,.usm-close-btn .material-symbols-outlined{font-size:18px;}
+
+.usm-scroll{flex:1;overflow-x:auto;overflow-y:hidden;display:flex;}
+.usm-board{display:flex;min-height:100%;min-width:max-content;}
+.usm-backbone-group{display:flex;flex-direction:column;flex-shrink:0;border-right:2px solid rgba(0,0,0,.11);}
+.usm-backbone-hd{padding:12px 14px;background:var(--usm-mid);border-bottom:2px solid var(--c-border);flex-shrink:0;position:relative;}
+.usm-act-icon{width:26px;height:26px;border-radius:6px;background:rgba(255,255,255,.18);display:inline-flex;align-items:center;justify-content:center;margin-bottom:6px;}
+.usm-act-icon .material-symbols-outlined{font-size:15px;color:rgba(255,255,255,.9);}
+.usm-act-name{font-size:.82rem;font-weight:500;color:#fff;line-height:1.3;}
+.usm-act-step{font-size:.6rem;color:rgba(255,255,255,.5);margin-top:2px;}
+.usm-flows-wrap{display:flex;flex:1;}
+.usm-col{width:184px;flex-shrink:0;display:flex;flex-direction:column;border-right:1px solid rgba(0,0,0,.07);background:rgba(74,150,171,.05);}
+.usm-col:last-child{border-right:none;}
+.usm-flow-hd{padding:8px 11px;background:var(--usm-light);border-bottom:1px solid var(--usm-border);font-size:.68rem;font-weight:500;color:var(--usm-text);flex-shrink:0;line-height:1.35;min-height:38px;display:flex;align-items:center;}
+.usm-stories-scroll{flex:1;overflow-y:auto;padding:9px 10px;display:flex;flex-direction:column;}
+.usm-story{position:relative;background:var(--c-surface);border:1.5px solid var(--c-border-light);border-radius:6px;padding:8px 28px 8px 10px;margin-bottom:7px;font-size:.68rem;line-height:1.5;color:var(--c-text);cursor:pointer;transition:var(--transition);}
+.usm-story:hover{border-color:var(--c-accent);}
+.usm-story-id{display:block;font-family:var(--f-mono);font-size:.58rem;color:var(--c-text-muted);margin-bottom:3px;}
+.usm-story-check{position:absolute;top:7px;right:7px;width:16px;height:16px;border-radius:50%;border:1.5px solid var(--c-border);background:#fff;display:flex;align-items:center;justify-content:center;transition:var(--transition);}
+.usm-story-check .material-symbols-outlined{font-size:11px;color:transparent;}
+.usm-story.selected{border-color:var(--c-navy);background:var(--c-accent-light);box-shadow:0 2px 10px rgba(27,58,87,.14);}
+.usm-story.selected .usm-story-check{background:var(--c-navy);border-color:var(--c-navy);}
+.usm-story.selected .usm-story-check .material-symbols-outlined{color:#fff;}
+.usm-foot{flex-shrink:0;background:var(--usm-dark);color:#fff;padding:9px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.usm-foot #usmSelCount{font-size:.74rem;color:rgba(255,255,255,.9);font-weight:500;}
+.usm-clear-btn{display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:.7rem;padding:5px 11px;border-radius:14px;cursor:pointer;font-family:var(--f-sans);transition:var(--transition);}
+.usm-clear-btn:hover{background:rgba(255,255,255,.26);}
+.us-hl{outline:2.5px solid #E74C3C !important;outline-offset:5px;border-radius:8px;animation:usPulse 1.1s ease-in-out 2;z-index:20;}
+@keyframes usPulse{0%,100%{box-shadow:0 0 0 0 rgba(231,76,60,.55);}50%{box-shadow:0 0 0 14px rgba(231,76,60,0);}}
+@media(max-width:720px){ .usm-panel{width:100%;} body.usm-open .site-header,body.usm-open .container{margin-left:0;box-shadow:none;} }
+
+/* ── USMヘッダーの「背景・ビジネス」ボタン ── */
+.usm-ctx-btn{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);color:#fff;font-size:.72rem;font-weight:500;padding:6px 12px;border-radius:20px;font-family:var(--f-sans);cursor:pointer;transition:var(--transition);white-space:nowrap;}
+.usm-ctx-btn:hover{background:rgba(255,255,255,.26);}
+.usm-ctx-btn .material-symbols-outlined{font-size:15px;}
+
+/* ── 判断材料オーバーレイ ── */
+.ctx-overlay{position:fixed;inset:0;z-index:900;background:rgba(15,30,45,.5);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);display:flex;align-items:flex-start;justify-content:center;padding:40px 20px;overflow-y:auto;opacity:0;pointer-events:none;transition:opacity .25s;}
+.ctx-overlay.open{opacity:1;pointer-events:all;}
+.ctx-modal{background:var(--c-surface);width:100%;max-width:800px;border-radius:16px;box-shadow:var(--shadow-lg);overflow:hidden;transform:translateY(14px);transition:transform .3s cubic-bezier(.22,1,.36,1);}
+.ctx-overlay.open .ctx-modal{transform:translateY(0);}
+.ctx-hd{background:var(--usm-primary);color:#fff;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.ctx-hd h2{font-size:1.05rem;font-weight:500;display:flex;align-items:center;gap:9px;line-height:1.3;}
+.ctx-hd .hd-sub{font-size:.66rem;opacity:.55;letter-spacing:.05em;margin-top:2px;font-weight:400;}
+.ctx-hd .material-symbols-outlined{font-size:20px;}
+.ctx-close{background:transparent;border:none;color:rgba(255,255,255,.7);width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
+.ctx-close:hover{background:rgba(255,255,255,.14);color:#fff;}
+.ctx-body{padding:22px 24px 26px;max-height:calc(100vh - 180px);overflow-y:auto;}
+.ctx-sec{margin-bottom:26px;}
+.ctx-sec:last-child{margin-bottom:0;}
+.ctx-sec-hd{display:flex;align-items:center;gap:8px;font-size:.9rem;font-weight:500;color:var(--c-navy);margin-bottom:13px;padding-bottom:8px;border-bottom:2px solid var(--c-border-light);}
+.ctx-sec-hd .material-symbols-outlined{font-size:18px;color:var(--c-accent);}
+.ctx-lead{font-size:.85rem;color:var(--c-text-sub);line-height:1.75;}
+.ctx-metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.ctx-metric{border:1px solid var(--c-border-light);border-radius:10px;padding:12px 14px;background:var(--c-surface-sub);}
+.ctx-metric .m-label{font-size:.72rem;color:var(--c-text-muted);}
+.ctx-metric .m-val{font-size:1.3rem;font-weight:500;color:var(--c-navy);font-family:var(--f-mono);margin:2px 0;line-height:1.1;}
+.ctx-metric .m-sub{font-size:.68rem;color:var(--c-text-sub);}
+.ctx-hyp{background:var(--c-accent-light);border:1.5px solid #cfe4ee;border-radius:12px;padding:16px 18px;font-size:.92rem;color:var(--c-navy);line-height:1.8;}
+.ctx-hyp b{color:var(--c-accent);}
+.ctx-guard{margin-top:10px;font-size:.78rem;color:var(--c-text-sub);display:flex;gap:7px;align-items:flex-start;}
+.ctx-guard .material-symbols-outlined{font-size:16px;color:var(--c-warning);flex-shrink:0;margin-top:1px;}
+.ctx-list{display:flex;flex-direction:column;gap:11px;}
+.ctx-log{display:flex;gap:10px;font-size:.82rem;color:var(--c-text-sub);line-height:1.65;}
+.ctx-log .material-symbols-outlined{font-size:17px;color:var(--c-accent);flex-shrink:0;margin-top:2px;}
+.ctx-log b{color:var(--c-text);}
+.ctx-quote{background:var(--c-warm);border:1px solid var(--c-warm-mid,#EDE6DC);border-radius:10px;padding:12px 14px 12px 40px;position:relative;font-size:.82rem;color:var(--c-text);line-height:1.65;}
+.ctx-quote::before{content:'format_quote';font-family:'Material Symbols Outlined';position:absolute;left:12px;top:11px;font-size:18px;color:var(--c-gold);}
+.ctx-quote .attr{display:block;margin-top:6px;font-size:.68rem;color:var(--c-text-muted);}
+.ctx-init{border:1px solid var(--c-border-light);border-radius:10px;padding:13px 15px;display:flex;gap:12px;margin-bottom:10px;background:var(--c-surface-sub);}
+.ctx-init:last-child{margin-bottom:0;}
+.ctx-init .material-symbols-outlined{font-size:22px;color:var(--c-accent);flex-shrink:0;}
+.ctx-init .i-name{font-weight:500;font-size:.86rem;color:var(--c-navy);margin-bottom:3px;}
+.ctx-init .i-desc{font-size:.78rem;color:var(--c-text-sub);line-height:1.65;}
+.ctx-kpi{width:100%;border-collapse:collapse;font-size:.8rem;}
+.ctx-kpi th{text-align:left;color:var(--c-text-muted);font-weight:500;font-size:.7rem;padding:6px 8px;border-bottom:1.5px solid var(--c-border-light);}
+.ctx-kpi td{padding:10px 8px;border-bottom:1px dashed var(--c-border-light);color:var(--c-text);}
+.ctx-kpi tr:last-child td{border-bottom:none;}
+.ctx-kpi .k-name{font-weight:500;color:var(--c-navy);}
+.ctx-kpi .k-goal{color:var(--c-success);font-weight:500;}
+.ctx-kpi .k-period{color:var(--c-text-muted);font-size:.72rem;}
+@media(max-width:640px){ .ctx-metrics{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <a class="logo" onclick="goMy()">
+    <span class="logo-main">おだんご急行</span>
+    <span class="logo-dot"></span>
+    <span class="logo-en">Odango Web Station</span>
+  </a>
+  <div class="header-right">
+    <span class="header-nav" onclick="goMy()"><span class="material-symbols-outlined">account_circle</span>マイページ</span>
+    <label class="lbl-switch" title="ワーク用：各機能にUSラベルを表示">
+      <input type="checkbox" id="usToggle" onchange="document.body.classList.toggle('show-us',this.checked)">
+      <span class="track"></span>USラベル
+    </label>
+    <div class="avatar">T</div>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- ══════════ SCREEN 0 : マイページ ══════════ -->
+  <section class="screen active" id="scrMy">
+    <div class="mp-head">
+      <div class="mp-greet">マイページ<small>西森 剛 さん</small></div>
+    </div>
+
+    <div class="mp-tabs">
+      <div class="mp-tab active">ご予約一覧</div>
+      <div class="mp-tab">会員情報</div>
+      <div class="mp-tab">ポイント</div>
+    </div>
+
+    <!-- マイページ トップの Warning -->
+    <div class="mp-warning">
+      <span class="material-symbols-outlined">warning</span>
+      <div>
+        <div class="mp-warning-title">運行に関する重要なお知らせ</div>
+        <div class="mp-warning-body">台風19号の影響で、お客様のご予約のうち <b>1件に運休</b> が発生しています。振替または払戻のお手続きをお願いします。</div>
+      </div>
+    </div>
+
+    <div class="section-label">ご予約中のチケット</div>
+
+    <!-- 運休の該当チケット（Alert付き・ボタンから運休フローへ） -->
+    <div class="ticket-card affected">
+      <div class="tc-alert"><span class="material-symbols-outlined">error</span>この列車は運休が決定しました（台風19号の影響）</div>
+      <div class="tc-body">
+        <div class="tc-badge"><b style="font-size:.74rem;font-weight:500;line-height:1.1">あずき</b><span class="n">32号</span></div>
+        <div>
+          <div class="tc-route">
+            <div class="tc-stn"><div class="tc-hhmm">10:12</div><div class="tc-name">東京</div></div>
+            <span class="material-symbols-outlined tc-arrow">arrow_forward</span>
+            <div class="tc-stn"><div class="tc-hhmm">11:22</div><div class="tc-name">軽井沢</div></div>
+          </div>
+          <div class="tc-meta">中山道新幹線 あずき32号 ／ 7/15(火)・グリーン車 12番A席・大人1名 ／ 予約番号 OD-7734-1152</div>
+        </div>
+        <div class="tc-status-col"><span class="status-pill cancel"><span class="material-symbols-outlined" style="font-size:14px">block</span>運休</span></div>
+      </div>
+      <div class="tc-foot">
+        <button class="btn btn-ghost btn-sm" onclick="alert('予約詳細（デモ）')">予約詳細</button>
+        <button class="btn btn-danger btn-sm" onclick="startDisruption()"><span class="material-symbols-outlined">swap_horiz</span>振替・払戻の手続きへ</button>
+      </div>
+    </div>
+
+    <!-- 通常のチケット（復路） -->
+    <div class="ticket-card">
+      <div class="tc-body">
+        <div class="tc-badge" style="background:var(--c-accent)"><b style="font-size:.7rem;font-weight:500;line-height:1.1">おもち</b><span class="n">932号</span></div>
+        <div>
+          <div class="tc-route">
+            <div class="tc-stn"><div class="tc-hhmm">16:20</div><div class="tc-name">軽井沢</div></div>
+            <span class="material-symbols-outlined tc-arrow">arrow_forward</span>
+            <div class="tc-stn"><div class="tc-hhmm">18:52</div><div class="tc-name">東京</div></div>
+          </div>
+          <div class="tc-meta">中山道新幹線 おもち932号 ／ 7/18(金)・グリーン車 9番D席・大人1名 ／ 予約番号 OD-7734-1188</div>
+        </div>
+        <div class="tc-status-col"><span class="status-pill ok"><span class="material-symbols-outlined" style="font-size:14px">check_circle</span>予約確定</span></div>
+      </div>
+      <div class="tc-foot">
+        <button class="btn btn-ghost btn-sm" onclick="alert('予約詳細（デモ）')">予約詳細</button>
+        <button class="btn btn-outline btn-sm" onclick="alert('変更・払戻（デモ）')">変更・払戻</button>
+      </div>
+    </div>
+
+    <!-- 過去のチケット -->
+    <div class="ticket-card" style="opacity:.72">
+      <div class="tc-body">
+        <div class="tc-badge" style="background:var(--c-text-muted)"><span class="material-symbols-outlined">train</span><span class="n">8号</span></div>
+        <div>
+          <div class="tc-route">
+            <div class="tc-stn"><div class="tc-hhmm">09:00</div><div class="tc-name">東京</div></div>
+            <span class="material-symbols-outlined tc-arrow">arrow_forward</span>
+            <div class="tc-stn"><div class="tc-hhmm">11:30</div><div class="tc-name">軽井沢</div></div>
+          </div>
+          <div class="tc-meta">6/2(月)・普通車 4番C席・大人1名 ／ 予約番号 OD-7501-0442</div>
+        </div>
+        <div class="tc-status-col"><span class="status-pill done">利用済み</span></div>
+      </div>
+    </div>
+
+    <div class="hint" style="margin-top:18px"><span class="material-symbols-outlined">info</span>ワーク用：右上の「USラベル」をONにすると、この先の画面で各機能にストーリー番号が表示されます。</div>
+  </section>
+
+  <!-- ══════════ SCREEN 1 : 影響を知る ══════════ -->
+  <section class="screen" id="scr1">
+    <div class="scr-eyebrow">運休・払戻</div>
+    <h1 class="scr-title">ご予約に運休の影響があります</h1>
+    <p class="scr-sub">台風の影響で運休が発生しています。対象のご予約をご確認ください。</p>
+
+    <div class="alert">
+      <span class="material-symbols-outlined">warning</span>
+      <div>
+        <div class="alert-title">台風19号の影響による運休</div>
+        <div class="alert-body">7/15 中山道新幹線の一部列車で運休が発生しています。振替または払戻のお手続きが可能です。</div>
+      </div>
+    </div>
+
+    <div class="block" data-us="US-R01">
+      <div class="block-hd"><span class="material-symbols-outlined">confirmation_number</span>対象のご予約<span class="us-chip">US-R01 該当予約の確認</span></div>
+      <div class="booking">
+        <div class="bk-badge"><b style="font-size:.74rem;font-weight:500;line-height:1.1">あずき</b><span class="n">32号</span></div>
+        <div>
+          <div class="bk-route">
+            <div class="bk-stn"><div class="bk-hhmm">10:12</div><div class="bk-name">東京</div></div>
+            <span class="material-symbols-outlined bk-arrow">arrow_forward</span>
+            <div class="bk-stn"><div class="bk-hhmm">11:22</div><div class="bk-name">軽井沢</div></div>
+          </div>
+          <div class="bk-meta">中山道新幹線 あずき32号 ／ 7/15(火)・グリーン車 12番A席・大人1名 ／ 予約番号 OD-7734-1152</div>
+        </div>
+        <div class="bk-status-col"><span class="status-pill cancel"><span class="material-symbols-outlined" style="font-size:14px">block</span>運休</span></div>
+      </div>
+    </div>
+
+    <div class="block" data-us="US-R03">
+      <div class="block-hd"><span class="material-symbols-outlined">schedule</span>運行の見通し<span class="us-chip">US-R03 再開見込み・遅延時分</span></div>
+      <div class="info-row"><span class="k">運転再開の見込み</span><span class="v">本日 15:00 頃（暫定）</span></div>
+      <div class="info-row"><span class="k">後続の新幹線</span><span class="v">最短 15:30 発から順次運転予定</span></div>
+      <div class="info-row"><span class="k">遅延見込み</span><span class="v">上り線 60〜90分</span></div>
+    </div>
+
+    <div class="ai-card" data-us="US-R04">
+      <div class="ai-tag"><span class="material-symbols-outlined">auto_awesome</span>AIによる代替経路の提案<span class="us-chip">US-R04 AI代替経路提案</span></div>
+      <div style="font-size:.85rem;color:var(--c-text)">北回りルート（高崎経由）に振り替えると <b>約20分早く</b>到着できます。追加料金なしで振替可能です。</div>
+    </div>
+
+    <div class="block-hd" style="margin:28px 2px 14px;font-size:1.05rem" data-us="US-R05"><span class="material-symbols-outlined">touch_app</span>対応方法を選ぶ<span class="us-chip">US-R05 振替 or 払戻の選択</span></div>
+    <div class="choice-grid" data-us="US-R05">
+      <div class="choice" onclick="choose('furikae')">
+        <div class="ico"><span class="material-symbols-outlined">swap_horiz</span></div>
+        <h3>振替する<span class="us-chip">US-R05</span></h3>
+        <p>別の列車・経路に乗り換える。<br>差額がなければ追加料金なし。</p>
+      </div>
+      <div class="choice" onclick="choose('haraimodoshi')">
+        <div class="ico"><span class="material-symbols-outlined">currency_yen</span></div>
+        <h3>払戻する<span class="us-chip">US-R05</span></h3>
+        <p>予約をキャンセルして返金を受ける。<br>運休のため全額返金。</p>
+      </div>
+    </div>
+
+    <div class="acc" id="ruleAcc" data-us="US-R06">
+      <div class="acc-hd" onclick="document.getElementById('ruleAcc').classList.toggle('open')">
+        <span>払戻ルール（手数料・返金条件）を確認する<span class="us-chip">US-R06 払戻ルールの事前確認</span></span>
+        <span class="material-symbols-outlined">expand_more</span>
+      </div>
+      <div class="acc-body">
+        ・<b>運休・遅延2時間以上</b>：特急券・乗車券とも全額返金、手数料なし。<br>
+        ・<b>お客様都合のキャンセル</b>：区間・時期に応じて手数料（220円〜）が発生します。<br>
+        ・オプション（駅弁・手荷物宅配など）は、手配状況により返金可否が異なります。<br>
+        ・クーポン利用分は、返金時にクーポンが未使用状態に戻ります。
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-ghost" onclick="goMy()"><span class="material-symbols-outlined">arrow_back</span>マイページに戻る</button>
+      <span class="muted">上のカードから対応方法を選んでください</span>
+    </div>
+  </section>
+
+  <!-- ══════════ SCREEN 3A : 振り替える ══════════ -->
+  <section class="screen" id="scr3a">
+    <div class="scr-eyebrow">運休・払戻 — 振替</div>
+    <h1 class="scr-title">振替先の列車を選ぶ</h1>
+    <p class="scr-sub">運休の振替のため、同一区間の後続列車は追加料金なしでご利用いただけます。</p>
+
+    <div class="tabs" data-us="US-R07 / US-R08">
+      <div class="tab active" onclick="switchTab(this,'tab-koutsuzuki')">後続列車<span class="us-chip">US-R07</span></div>
+      <div class="tab" onclick="switchTab(this,'tab-betsubi')">別の日<span class="us-chip">US-R08</span></div>
+      <div class="tab" onclick="switchTab(this,'tab-betsukeiro')">別の経路<span class="us-chip">US-R08 / R09</span></div>
+    </div>
+
+    <div class="tabpane active" id="tab-koutsuzuki">
+      <div class="train-row" onclick="selectTrain(this)">
+        <div class="tr-badge"><b>あずき</b><span>36号</span></div>
+        <div class="t-times">
+          <div class="t-time"><div class="t-hhmm">15:30</div><div class="t-stn">東京</div></div>
+          <div class="t-mid"><div class="t-mid-dur">1時間10分</div><div class="t-mid-line"></div></div>
+          <div class="t-time"><div class="t-hhmm">16:40</div><div class="t-stn">軽井沢</div></div>
+        </div>
+        <div class="t-right"><span class="status-pill free">追加料金なし</span><div class="t-note">グリーン車 空席あり</div></div>
+      </div>
+      <div class="train-row" onclick="selectTrain(this)">
+        <div class="tr-badge"><b>あずき</b><span>38号</span></div>
+        <div class="t-times">
+          <div class="t-time"><div class="t-hhmm">16:30</div><div class="t-stn">東京</div></div>
+          <div class="t-mid"><div class="t-mid-dur">1時間10分</div><div class="t-mid-line"></div></div>
+          <div class="t-time"><div class="t-hhmm">17:40</div><div class="t-stn">軽井沢</div></div>
+        </div>
+        <div class="t-right"><span class="status-pill free">追加料金なし</span><div class="t-note">普通席のみ空席</div></div>
+      </div>
+    </div>
+
+    <div class="tabpane" id="tab-betsubi">
+      <div class="block" style="margin:0">
+        <div class="info-row"><span class="k">7/16(水) 10:12発 32号</span><span class="v"><span class="status-pill free">追加料金なし</span></span></div>
+        <div class="info-row"><span class="k">7/17(木) 10:12発 32号</span><span class="v"><span class="status-pill free">追加料金なし</span></span></div>
+        <div class="hint"><span class="material-symbols-outlined">info</span>別日への振替は同一席種で空席がある場合に限ります。</div>
+      </div>
+    </div>
+
+    <div class="tabpane" id="tab-betsukeiro">
+      <div class="train-row" onclick="selectTrain(this)" data-us="US-R09">
+        <div class="tr-badge"><b>おもち</b><span>54号</span></div>
+        <div class="t-times">
+          <div class="t-time"><div class="t-hhmm">15:10</div><div class="t-stn">東京</div></div>
+          <div class="t-mid"><div class="t-mid-dur">1時間25分・高崎経由</div><div class="t-mid-line"></div></div>
+          <div class="t-time"><div class="t-hhmm">16:35</div><div class="t-stn">軽井沢</div></div>
+        </div>
+        <div class="t-right"><span class="t-fare">＋¥1,200</span><div class="t-note">差額のお支払いが必要<span class="us-chip">US-R09 差額決済</span></div></div>
+      </div>
+    </div>
+
+    <div class="block" style="margin-top:16px" data-us="US-R10">
+      <div class="block-hd"><span class="material-symbols-outlined">event_seat</span>座席を選び直す<span class="us-chip">US-R10 座席の再選択</span></div>
+      <div class="info-row"><span class="k">現在の割当</span><span class="v">グリーン車 8番A（窓側・自動割当）</span></div>
+      <button class="btn btn-ghost" style="padding-left:0" onclick="alert('座席マップを開く（デモ）')"><span class="material-symbols-outlined">grid_view</span>座席マップから選び直す</button>
+    </div>
+
+    <div class="block" data-us="US-R11">
+      <div class="block-hd"><span class="material-symbols-outlined">groups</span>グループまとめて振替<span class="us-chip">US-R11 グループ一括振替</span></div>
+      <label class="switch"><input type="checkbox"><span class="tk"></span>同行者3名も同じ列車にまとめて振り替える</label>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-ghost" onclick="go(1)"><span class="material-symbols-outlined">arrow_back</span>戻る</button>
+      <button class="btn btn-primary" onclick="go(4)">確認へ進む<span class="material-symbols-outlined">arrow_forward</span></button>
+    </div>
+  </section>
+
+  <!-- ══════════ SCREEN 3B : 払い戻す ══════════ -->
+  <section class="screen" id="scr3b">
+    <div class="scr-eyebrow">運休・払戻 — 払戻</div>
+    <h1 class="scr-title">払戻の内容を確認する</h1>
+    <p class="scr-sub">運休のため手数料なしで全額返金されます。オプションやクーポンの調整もあわせてご確認ください。</p>
+
+    <div class="block" data-us="US-R12 / R14 / R15 / R16">
+      <div class="block-hd"><span class="material-symbols-outlined">receipt_long</span>払戻明細<span class="us-chip">US-R12 全額払戻</span></div>
+      <div class="sum-table">
+        <div class="sum-row"><span class="sum-k">特急券・乗車券<span class="us-chip">US-R12</span></span><span>¥6,380</span></div>
+        <div class="sum-row" data-us="US-R14"><span class="sum-k">一部乗車済み区間の按分<span class="us-chip">US-R14 按分払戻</span></span><span class="neg">−¥0（未乗車）</span></div>
+        <div class="sum-row" data-us="US-R15"><span class="sum-k">駅弁（幕の内弁当）<span class="us-chip">US-R15 オプション払戻</span></span><span>¥1,080</span></div>
+        <div class="sum-row" data-us="US-R15"><span class="sum-k">手荷物宅配<span class="us-chip">US-R15</span></span><span class="muted">手配済みのため対象外</span></div>
+        <div class="sum-row" data-us="US-R16"><span class="sum-k">クーポン割引の戻し<span class="us-chip">US-R16 クーポン返金処理</span></span><span class="neg">−¥500（クーポンは未使用に戻る）</span></div>
+        <div class="sum-row"><span class="sum-k">払戻手数料</span><span class="pos">¥0（運休のため）</span></div>
+        <div class="sum-row total"><span>返金合計</span><span>¥7,460</span></div>
+      </div>
+    </div>
+
+    <div class="block" data-us="US-R13">
+      <div class="block-hd"><span class="material-symbols-outlined">account_balance</span>返金先<span class="us-chip">US-R13 元の決済手段へ自動返金</span></div>
+      <div class="method">
+        <div class="card-mini"></div>
+        <div>
+          <div class="m-name">お支払い時のクレジットカードへ自動返金</div>
+          <div class="m-num">**** **** **** 4412 ／ 3〜5営業日で反映</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="block" data-us="US-R14">
+      <div class="block-hd"><span class="material-symbols-outlined">alt_route</span>一部だけ乗車済みの場合<span class="us-chip">US-R14 按分払戻</span></div>
+      <label class="switch"><input type="checkbox" onchange="alert('乗車済み区間に応じて按分計算します（デモ）')"><span class="tk"></span>途中駅まで乗車済みとして按分計算する</label>
+      <div class="hint"><span class="material-symbols-outlined">info</span>乗車済み区間の運賃を差し引いて返金額を再計算します。</div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-ghost" onclick="go(1)"><span class="material-symbols-outlined">arrow_back</span>戻る</button>
+      <button class="btn btn-primary" onclick="go(4)">確認へ進む<span class="material-symbols-outlined">arrow_forward</span></button>
+    </div>
+  </section>
+
+  <!-- ══════════ SCREEN 4 : 確認 ══════════ -->
+  <section class="screen" id="scr4">
+    <div class="scr-eyebrow">運休・払戻 — 確認</div>
+    <h1 class="scr-title" id="scr4Title">対応内容の確認</h1>
+    <p class="scr-sub">以下の内容で手続きを確定します。よろしければ確定してください。</p>
+
+    <div class="block" id="scr4Body"></div>
+
+    <div class="actions">
+      <button class="btn btn-ghost" onclick="goBackFromConfirm()"><span class="material-symbols-outlined">arrow_back</span>戻る</button>
+      <button class="btn btn-accent" onclick="go(5)"><span class="material-symbols-outlined">check</span>この内容で確定する</button>
+    </div>
+  </section>
+
+  <!-- ══════════ SCREEN 5 : 完了 ══════════ -->
+  <section class="screen" id="scr5">
+    <div class="result-wrap">
+      <div class="result-check"><span class="material-symbols-outlined">check</span></div>
+      <h1 class="scr-title" id="scr5Title" style="margin-bottom:4px">手続きが完了しました</h1>
+      <p class="scr-sub" id="scr5Sub" style="margin-bottom:10px">対応内容をメールでお送りしました。</p>
+
+      <div data-us="US-R17">
+        <div class="muted">受付番号<span class="us-chip">US-R17 受付結果・受付番号</span></div>
+        <div class="receipt-no" id="receiptNo">OD-RF-4Q82</div>
+      </div>
+
+      <div class="result-mail" data-us="US-R18">
+        <span class="material-symbols-outlined">mail</span>t_nishimori@example.com に完了メールを送信しました<span class="us-chip">US-R18 完了メール</span>
+      </div>
+
+      <div style="margin-top:26px">
+        <button class="btn btn-ghost" onclick="alert('対応履歴を開く（デモ）')" data-us="US-R19"><span class="material-symbols-outlined">history</span>対応履歴を見る<span class="us-chip">US-R19 対応履歴</span></button>
+      </div>
+      <div style="margin-top:8px">
+        <button class="btn btn-primary" onclick="goMy()"><span class="material-symbols-outlined">account_circle</span>マイページに戻る</button>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- USM 起動ボタン -->
+<button class="usm-fab" onclick="openUSM()">
+  <span class="material-symbols-outlined">map</span>
+  USM
+</button>
+
+<!-- USM パネル -->
+<div class="usm-panel" id="usmPanel">
+  <div class="usm-header">
+    <div class="usm-header-left">
+      <div class="usm-hicon"><span class="material-symbols-outlined">map</span></div>
+      <div>
+        <div class="usm-htitle">User Story Map</div>
+        <div class="usm-hsub">運休・遅延時の振替・払戻 — おだんご急行鉄道</div>
+      </div>
+    </div>
+    <div class="usm-header-right">
+      <button class="usm-ctx-btn" onclick="openContext()"><span class="material-symbols-outlined">insights</span>背景・ビジネス</button>
+      <button class="usm-icon-btn" id="btnMaximize" onclick="toggleMaximize()" title="最大化"><span class="material-symbols-outlined">open_in_full</span></button>
+      <button class="usm-close-btn" onclick="closeUSM()"><span class="material-symbols-outlined">close</span></button>
+    </div>
+  </div>
+  <div class="usm-scroll">
+    <div class="usm-board" id="usmBoard"><!-- JSで描画 --></div>
+  </div>
+  <div class="usm-foot">
+    <span id="usmSelCount">MVPとして選択: 0 件</span>
+    <button class="usm-clear-btn" onclick="clearSelect()"><span class="material-symbols-outlined" style="font-size:14px">restart_alt</span>選択をクリア</button>
+  </div>
+</div>
+
+<!-- 判断材料（背景・仮説・VOC・ビジネスの狙い） -->
+<div class="ctx-overlay" id="ctxOverlay" onclick="if(event.target===this)closeContext()">
+  <div class="ctx-modal">
+    <div class="ctx-hd">
+      <div>
+        <h2><span class="material-symbols-outlined">insights</span>この機能の背景とビジネスの狙い</h2>
+        <div class="hd-sub">運休・遅延時の振替・払戻 — MVPを判断するための材料</div>
+      </div>
+      <button class="ctx-close" onclick="closeContext()"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="ctx-body" id="ctxBody"><!-- JSで描画 --></div>
+  </div>
+</div>
+
+<script>
+var path = null; // 'furikae' | 'haraimodoshi'
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function goMy(){ path=null; showScreen('scrMy'); }
+function startDisruption(){ showScreen('scr1'); }
+
+function go(step){
+  if(step===1){ showScreen('scr1'); }
+  else if(step===2){ showScreen('scr2'); }
+  else if(step===3){ showScreen(path==='furikae' ? 'scr3a' : 'scr3b'); }
+  else if(step===4){ buildConfirm(); showScreen('scr4'); }
+  else if(step===5){ buildResult(); showScreen('scr5'); }
+}
+function choose(p){ path=p; go(3); }
+function goBackFromConfirm(){ go(3); }
+
+function switchTab(el,paneId){
+  el.parentElement.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+  el.classList.add('active');
+  el.closest('.screen').querySelectorAll('.tabpane').forEach(function(p){p.classList.remove('active');});
+  document.getElementById(paneId).classList.add('active');
+}
+function selectTrain(row){
+  row.parentElement.querySelectorAll('.train-row').forEach(function(r){r.classList.remove('selected');});
+  row.classList.add('selected');
+}
+
+function buildConfirm(){
+  var body = document.getElementById('scr4Body');
+  if(path==='furikae'){
+    document.getElementById('scr4Title').textContent = '振替内容の確認';
+    body.innerHTML =
+      '<div class="info-row"><span class="k">元のご予約</span><span class="v">あずき32号（運休）東京→軽井沢</span></div>'+
+      '<div class="info-row"><span class="k">振替先</span><span class="v">あずき36号 15:30発 → 16:40着</span></div>'+
+      '<div class="info-row"><span class="k">座席</span><span class="v">グリーン車 8番A（窓側）</span></div>'+
+      '<div class="info-row"><span class="k">追加料金</span><span class="v" style="color:var(--c-success)">¥0（運休の振替）</span></div>';
+  } else {
+    document.getElementById('scr4Title').textContent = '払戻内容の確認';
+    body.innerHTML =
+      '<div class="info-row"><span class="k">対象予約</span><span class="v">あずき32号（運休）東京→軽井沢</span></div>'+
+      '<div class="info-row"><span class="k">返金合計</span><span class="v">¥7,460</span></div>'+
+      '<div class="info-row"><span class="k">返金先</span><span class="v">クレジットカード **** 4412</span></div>'+
+      '<div class="info-row"><span class="k">手数料</span><span class="v" style="color:var(--c-success)">¥0（運休のため）</span></div>';
+  }
+}
+function buildResult(){
+  if(path==='furikae'){
+    document.getElementById('scr5Title').textContent = '振替が完了しました';
+    document.getElementById('scr5Sub').textContent = '新しい予約内容をメールでお送りしました。';
+    document.getElementById('receiptNo').textContent = 'OD-RB-7F31';
+  } else {
+    document.getElementById('scr5Title').textContent = '払戻を受け付けました';
+    document.getElementById('scr5Sub').textContent = '返金手続きの詳細をメールでお送りしました。';
+    document.getElementById('receiptNo').textContent = 'OD-RF-4Q82';
+  }
+}
+
+/* ═══════════ User Story Map（運休・払戻） ═══════════ */
+var USM = [
+  {
+    icon:'crisis_alert', activity:'運休・遅延に対応する', step:'新機能',
+    flows:[
+      { task:'① 影響を知る', stories:[
+        { id:'US-R01', tier:'mvp',    text:'ユーザーは自分の予約が運休・遅延の対象か知りたい。なぜなら影響の有無をすぐ把握するからだ。' },
+        { id:'US-R02', tier:'r2',     text:'ユーザーは運休・遅延をプッシュやメールで自動通知してほしい。なぜなら自分で調べなくても気づけるからだ。' },
+        { id:'US-R03', tier:'r2',     text:'ユーザーは運転再開の見込みや遅延時分を知りたい。なぜなら振替か払戻かを判断するからだ。' },
+        { id:'US-R04', tier:'future', text:'ユーザーはAIに代替経路を提案してほしい。なぜなら早く着く方法を探す手間を省くからだ。' },
+      ]},
+      { task:'② 対応を選ぶ', stories:[
+        { id:'US-R05', tier:'mvp',    text:'ユーザーは振替か払戻かを選びたい。なぜなら自分に合った対応を決めるからだ。' },
+        { id:'US-R06', tier:'r2',     text:'ユーザーは払戻ルール（全額・手数料）を事前に確認したい。なぜなら損をしないか判断するからだ。' },
+      ]},
+      { task:'③ 振り替える', stories:[
+        { id:'US-R07', tier:'mvp',    text:'ユーザーは同一区間の後続列車へ無料で振り替えたい。なぜなら追加費用なく目的地へ向かうからだ。' },
+        { id:'US-R08', tier:'future', text:'ユーザーは別の日や別の経路にも振り替えたい。なぜなら都合や急ぎに合わせて移動するからだ。' },
+        { id:'US-R09', tier:'r2',     text:'ユーザーは振替で差額が出たとき追加決済・返金したい。なぜなら正しい料金で精算するからだ。' },
+        { id:'US-R10', tier:'r2',     text:'ユーザーは振替後に座席を選び直したい。なぜなら希望の席で移動するからだ。' },
+        { id:'US-R11', tier:'future', text:'ユーザーは同行者もまとめて振り替えたい。なぜならグループ全員で移動するからだ。' },
+      ]},
+      { task:'④ 払い戻す', stories:[
+        { id:'US-R12', tier:'mvp',    text:'ユーザーは運休分の全額払戻を申請したい。なぜなら使えなかった予約の返金を受けるからだ。' },
+        { id:'US-R13', tier:'r2',     text:'ユーザーは元の決済手段へ自動で返金してほしい。なぜなら手続きの手間なく返金されるからだ。' },
+        { id:'US-R14', tier:'future', text:'ユーザーは一部乗車済みのとき按分で払い戻したい。なぜなら乗った分だけ正しく精算するからだ。' },
+        { id:'US-R15', tier:'r2',     text:'ユーザーは駅弁や宅配などオプション分の払戻も反映したい。なぜなら不要になった分を返金してもらうからだ。' },
+        { id:'US-R16', tier:'future', text:'ユーザーはクーポン利用分を正しく戻したい。なぜなら次回もクーポンを使えるようにするからだ。' },
+      ]},
+      { task:'⑤ 結果を受け取る', stories:[
+        { id:'US-R17', tier:'mvp',    text:'ユーザーは振替・払戻の受付結果と受付番号を確認したい。なぜなら手続き完了を確かめるからだ。' },
+        { id:'US-R18', tier:'r2',     text:'ユーザーは対応完了メールを受け取りたい。なぜなら記録を手元に残すからだ。' },
+        { id:'US-R19', tier:'future', text:'ユーザーは対応履歴を後から見返したい。なぜなら過去の対応を確認するからだ。' },
+      ]},
+    ]
+  }
+];
+
+var selectedMVP = {}; // 参加者がMVPとして選んだUS（クリック選択）
+
+function storyCard(s){
+  var sel = selectedMVP[s.id] ? ' selected' : '';
+  return '<div class="usm-story'+sel+'" data-us-id="'+s.id+'" onclick="toggleSelect(this,\''+s.id+'\')">'+
+           '<span class="usm-story-check"><span class="material-symbols-outlined">check</span></span>'+
+           '<span class="usm-story-id">'+s.id+'</span>'+
+           s.text+
+         '</div>';
+}
+
+function toggleSelect(el, id){
+  if(selectedMVP[id]){ delete selectedMVP[id]; el.classList.remove('selected'); }
+  else { selectedMVP[id] = true; el.classList.add('selected'); }
+  updateSelCount();
+}
+function clearSelect(){
+  selectedMVP = {};
+  document.querySelectorAll('.usm-story.selected').forEach(function(e){ e.classList.remove('selected'); });
+  updateSelCount();
+}
+function updateSelCount(){
+  var n = Object.keys(selectedMVP).length;
+  var el = document.getElementById('usmSelCount');
+  if(el) el.textContent = 'MVPとして選択: ' + n + ' 件';
+}
+
+function renderUSMBoard(){
+  var board = document.getElementById('usmBoard');
+  board.innerHTML = '';
+  USM.forEach(function(bb){
+    var group = document.createElement('div');
+    group.className = 'usm-backbone-group';
+    var flowsHtml = bb.flows.map(function(flow){
+      return '<div class="usm-col">'+
+               '<div class="usm-flow-hd">'+flow.task+'</div>'+
+               '<div class="usm-stories-scroll">'+ flow.stories.map(storyCard).join('') +'</div>'+
+             '</div>';
+    }).join('');
+    group.innerHTML =
+      '<div class="usm-backbone-hd">'+
+        '<div class="usm-act-icon"><span class="material-symbols-outlined">'+bb.icon+'</span></div>'+
+        '<div class="usm-act-name">'+bb.activity+'</div>'+
+        '<div class="usm-act-step">'+bb.step+'</div>'+
+      '</div>'+
+      '<div class="usm-flows-wrap">'+flowsHtml+'</div>';
+    board.appendChild(group);
+  });
+  updateSelCount();
+}
+
+var usmMaximized = false;
+function openUSM(){ renderUSMBoard(); document.getElementById('usmPanel').classList.add('open'); document.body.classList.add('usm-open'); }
+function closeUSM(){ if(usmMaximized) toggleMaximize(); document.getElementById('usmPanel').classList.remove('open'); document.body.classList.remove('usm-open'); }
+function toggleMaximize(){
+  usmMaximized = !usmMaximized;
+  document.body.classList.toggle('usm-max', usmMaximized);
+  var i = document.querySelector('#btnMaximize .material-symbols-outlined');
+  if(i) i.textContent = usmMaximized ? 'close_fullscreen' : 'open_in_full';
+}
+
+/* ═══════════ 判断材料（背景・仮説・VOC・ビジネスの狙い） ═══════════ */
+var CTX = {
+  background:'台風・大雪・地震などの異常時、特急の運休や大幅遅延が発生する。現在おだんご急行では、振替・払戻の受付は駅の窓口と電話のみで、異常時には問い合わせが殺到する。現場は手作業で対応するため長い待ち時間とミスが生じ、「アプリで予約したのに、変更は電話しかできない」という不満につながっている。',
+  metrics:[
+    { label:'運休時のコールセンター入電数', val:'×3.8', sub:'平常時比（ピーク日 約12,000件）' },
+    { label:'1件あたり平均対応時間', val:'8分24秒', sub:'有人対応・待ち時間は別' },
+    { label:'Web完結率（振替・払戻）', val:'0%', sub:'すべて窓口／電話の有人対応' },
+    { label:'払戻の平均リードタイム', val:'6.5営業日', sub:'目標 3営業日以内' },
+    { label:'運休発生月のNPS', val:'−12', sub:'平常月は +18' },
+    { label:'運休経験者の再予約率', val:'−14pt', sub:'平常時ユーザー比' },
+  ],
+  hypothesis:'運休・遅延時に、予約済みのお客さまが<b>アプリだけで振替・払戻を最後まで完結</b>でき、コールセンターへの入電を<b>30%以上削減</b>できる。まずは「セルフでの振替・払戻が実際に使われるか」を最小構成で検証したい。',
+  guardrail:'ガードレール：誤操作による過剰返金・二重予約・不正な振替が発生しないこと。返金金額の正確性は品質として妥協しない。',
+  logs:[
+    { icon:'query_stats', text:'運休当日、予約完了メールのリンクから「変更」「キャンセル」を探すユーザーが <b>1日あたり約4,300件</b>。導線が無く外部へ離脱している。' },
+    { icon:'support_agent', text:'入電の <b>68%</b> が「振替できる列車を教えて」「返金はいつ？」といった定型的な問い合わせ。自己解決できれば大幅に削減できる。' },
+    { icon:'trending_down', text:'運休を経験した会員の再予約率は平常時比 <b>−14pt</b>。異常時の体験がその後のLTVに影響している。' },
+  ],
+  quotes:[
+    { text:'台風で運休したのに、変更は電話だけ。1時間つながらなくて、結局窓口に並んだ。', attr:'ユーザーインタビュー / 32歳・出張利用・月4回' },
+    { text:'払戻がいつ返ってくるのか分からず不安だった。アプリで受付番号だけでも見られたら安心なのに。', attr:'ユーザーインタビュー / 45歳・家族旅行' },
+    { text:'運休対応に関する問い合わせ満足度（n=210）：「不満・やや不満」が <b>68%</b>。', attr:'CXチーム 異常時対応調査 2026Q1' },
+  ],
+  initiatives:[
+    { icon:'swap_horiz', name:'施策① セルフ振替', desc:'予約した列車が運休したら、アプリから後続列車へ無料で振り替えられる。入電の主因である「振替の相談」を自己解決に置き換える。' },
+    { icon:'currency_yen', name:'施策② セルフ払戻', desc:'全額払戻をアプリから申請し、受付番号を即時発行。「いつ返る？」という不安と、それに伴う問い合わせを解消する。' },
+  ],
+  kpis:[
+    { kpi:'コールセンター入電数（運休時）', now:'ピーク日 約12,000件', goal:'▲30%', period:'6ヶ月後' },
+    { kpi:'Web完結率（振替・払戻）', now:'0%', goal:'40%', period:'6ヶ月後' },
+    { kpi:'払戻の平均リードタイム', now:'6.5営業日', goal:'3営業日', period:'3ヶ月後' },
+    { kpi:'運休発生月のNPS', now:'−12', goal:'0以上', period:'12ヶ月後' },
+  ]
+};
+
+function renderContext(){
+  var c = CTX;
+  var metrics = c.metrics.map(function(m){
+    return '<div class="ctx-metric"><div class="m-label">'+m.label+'</div><div class="m-val">'+m.val+'</div><div class="m-sub">'+m.sub+'</div></div>';
+  }).join('');
+  var logs = c.logs.map(function(l){
+    return '<div class="ctx-log"><span class="material-symbols-outlined">'+l.icon+'</span><div>'+l.text+'</div></div>';
+  }).join('');
+  var quotes = c.quotes.map(function(q){
+    return '<div class="ctx-quote">'+q.text+'<span class="attr">'+q.attr+'</span></div>';
+  }).join('');
+  var inits = c.initiatives.map(function(i){
+    return '<div class="ctx-init"><span class="material-symbols-outlined">'+i.icon+'</span><div><div class="i-name">'+i.name+'</div><div class="i-desc">'+i.desc+'</div></div></div>';
+  }).join('');
+  var kpis = c.kpis.map(function(k){
+    return '<tr><td class="k-name">'+k.kpi+'</td><td>'+k.now+'</td><td class="k-goal">'+k.goal+'</td><td class="k-period">'+k.period+'</td></tr>';
+  }).join('');
+
+  document.getElementById('ctxBody').innerHTML =
+    '<div class="ctx-sec"><div class="ctx-sec-hd"><span class="material-symbols-outlined">history_edu</span>背景・課題</div><div class="ctx-lead">'+c.background+'</div></div>'+
+    '<div class="ctx-sec"><div class="ctx-sec-hd"><span class="material-symbols-outlined">monitoring</span>現状の主要指標</div><div class="ctx-metrics">'+metrics+'</div></div>'+
+    '<div class="ctx-sec"><div class="ctx-sec-hd"><span class="material-symbols-outlined">science</span>検証したい仮説</div><div class="ctx-hyp">'+c.hypothesis+'<div class="ctx-guard"><span class="material-symbols-outlined">shield</span>'+c.guardrail+'</div></div></div>'+
+    '<div class="ctx-sec"><div class="ctx-sec-hd"><span class="material-symbols-outlined">insights</span>VOC・データ</div><div class="ctx-list">'+logs+quotes+'</div></div>'+
+    '<div class="ctx-sec"><div class="ctx-sec-hd"><span class="material-symbols-outlined">rocket_launch</span>ビジネスの狙い（施策）</div>'+inits+'</div>'+
+    '<div class="ctx-sec"><div class="ctx-sec-hd"><span class="material-symbols-outlined">flag</span>狙うKPI</div><table class="ctx-kpi"><thead><tr><th>指標</th><th>現状</th><th>目標</th><th>時期</th></tr></thead><tbody>'+kpis+'</tbody></table></div>';
+}
+function openContext(){ renderContext(); document.getElementById('ctxOverlay').classList.add('open'); }
+function closeContext(){ document.getElementById('ctxOverlay').classList.remove('open'); }
+
+var _usTimer = null;
+function highlightUS(id){
+  document.querySelectorAll('.us-hl').forEach(function(e){ e.classList.remove('us-hl'); });
+  if(_usTimer){ clearTimeout(_usTimer); }
+  var els = [].slice.call(document.querySelectorAll('[data-us]')).filter(function(el){
+    if(el.offsetParent===null) return false; // 表示中の画面のみ
+    return el.getAttribute('data-us').split(/[\s/]+/).indexOf(id) >= 0;
+  });
+  if(!els.length) return;
+  els.forEach(function(el){ el.classList.add('us-hl'); });
+  els[0].scrollIntoView({ behavior:'smooth', block:'center' });
+  _usTimer = setTimeout(function(){ els.forEach(function(el){ el.classList.remove('us-hl'); }); }, 2600);
+}
+</script>
+</body>
+</html>
